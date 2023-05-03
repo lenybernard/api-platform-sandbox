@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GraphQl\Mutation;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
 use App\Repository\RecepeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -13,10 +15,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: RecepeRepository::class)]
 #[ApiResource(
     graphQlOperations: [
+        new Query(),
+        new QueryCollection(),
         new Mutation(
             normalizationContext: ['groups' => ['recepe:read']],
             denormalizationContext: ['groups' => ['recepe:write']],
-            name: 'create'
+            name: 'create',
+        ),
+        new Mutation(
+            normalizationContext: ['groups' => ['recepe:read']],
+            denormalizationContext: ['groups' => ['recepe:write']],
+            name: 'update',
         )
     ]
 )]
@@ -40,7 +49,7 @@ class Recepe
     #[Groups(['recepe:read', 'recepe:write'])]
     private ?User $author = null;
 
-    #[ORM\OneToMany(mappedBy: 'recepe', targetEntity: Ingredient::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'recepe', targetEntity: Ingredient::class, cascade: ["persist"], orphanRemoval: true)]
     #[Groups(['recepe:read', 'recepe:write'])]
     private Collection $ingredients;
 

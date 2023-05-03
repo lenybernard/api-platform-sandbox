@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GraphQl\Mutation;
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -14,6 +16,7 @@ class Ingredient
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['recepe:read', 'recepe:write'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -29,9 +32,10 @@ class Ingredient
     private ?string $unit = null;
 
     #[ORM\ManyToOne(inversedBy: 'ingredients')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false)]
     #[Groups(['recepe:read'])]
-    private ?Recepe $recepe = null;
+    #[ApiProperty(writable: false)]
+    private Recepe $recepe;
 
     public function getId(): ?int
     {
@@ -74,14 +78,16 @@ class Ingredient
         return $this;
     }
 
-    public function getRecepe(): ?Recepe
+    public function getRecepe(): Recepe
     {
         return $this->recepe;
     }
 
     public function setRecepe(?Recepe $recepe): self
     {
-        $this->recepe = $recepe;
+        if ($recepe) {
+            $this->recepe = $recepe;
+        }
 
         return $this;
     }

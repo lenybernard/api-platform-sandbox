@@ -53,9 +53,14 @@ class Recepe
     #[Groups(['recepe:read', 'recepe:write'])]
     private Collection $ingredients;
 
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'likedRecepes')]
+    #[Groups(['recepe:read', 'recepe:write'])]
+    private Collection $likers;
+
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
+        $this->likers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -125,6 +130,30 @@ class Recepe
                 $ingredient->setRecepe(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getLikers(): Collection
+    {
+        return $this->likers;
+    }
+
+    public function addLiker(User $liker): self
+    {
+        if (!$this->likers->contains($liker)) {
+            $this->likers->add($liker);
+        }
+
+        return $this;
+    }
+
+    public function removeLiker(User $liker): self
+    {
+        $this->likers->removeElement($liker);
 
         return $this;
     }

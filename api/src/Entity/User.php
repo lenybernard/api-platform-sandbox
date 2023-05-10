@@ -27,9 +27,13 @@ class User
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Recepe::class)]
     private Collection $recepes;
 
+    #[ORM\ManyToMany(targetEntity: Recepe::class, mappedBy: 'likers')]
+    private Collection $likedRecepes;
+
     public function __construct()
     {
         $this->recepes = new ArrayCollection();
+        $this->likedRecepes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,6 +90,33 @@ class User
             if ($recepe->getAuthor() === $this) {
                 $recepe->setAuthor(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Recepe>
+     */
+    public function getLikedRecepes(): Collection
+    {
+        return $this->likedRecepes;
+    }
+
+    public function addLikedRecepe(Recepe $likedRecepe): self
+    {
+        if (!$this->likedRecepes->contains($likedRecepe)) {
+            $this->likedRecepes->add($likedRecepe);
+            $likedRecepe->addLiker($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLikedRecepe(Recepe $likedRecepe): self
+    {
+        if ($this->likedRecepes->removeElement($likedRecepe)) {
+            $likedRecepe->removeLiker($this);
         }
 
         return $this;
